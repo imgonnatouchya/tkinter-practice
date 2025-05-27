@@ -5,6 +5,9 @@ import time
 
 # Main class for the game
 class DungeonGame:
+    
+    # --- This is all for the GUI in Tkinter which SUCKED to do ---
+    
     def __init__(self, root):
         # Initialize the main window and widgets
         # Images:
@@ -25,7 +28,63 @@ class DungeonGame:
         # Start the game
         self.reset_game()
         self.start_game()
+        
+    # vvvvvvvvvvv Various print functions for diff delays vvvvvvvvvvvv  
+    def printnosleep(self, *args, end='\n'):
+        self.text.config(state='normal')
+        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
+        self.text.see(tk.END)
+        self.text.config(state='disabled')
 
+    def printshortsleep(self, *args, end='\n'):
+        self.text.config(state='normal')
+        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
+        self.text.see(tk.END)
+        self.text.config(state='disabled')
+        self.root.update()  # Ensure the GUI updates before sleeping
+        time.sleep(0.2)
+
+    def print(self, *args, end='\n'):
+        self.text.config(state='normal')
+        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
+        self.text.see(tk.END)
+        self.text.config(state='disabled')
+        self.root.update()
+        time.sleep(0.75)      
+
+    def printlongsleep(self, *args, end='\n'):
+        self.text.config(state='normal')
+        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
+        self.text.see(tk.END)
+        self.text.config(state='disabled')
+        self.root.update()
+        time.sleep(2)
+
+    def input(self, prompt, callback):
+        # Prompt the user for input and set the callback for when they submit
+        self.print(prompt, end='')
+        self.input_callback = callback
+        self.entry.delete(0, tk.END)
+        self.entry.focus_set()
+
+    def on_submit(self):
+        # Handles submit button and stuff even more
+        if self.input_callback:
+            value = self.entry.get()
+            self.entry.delete(0, tk.END)
+            cb = self.input_callback
+            self.input_callback = None
+            cb(value)
+
+    # ----------------------------------------------------- #
+    # --- ANNOYING AND HORRIBLE TKINTER STUFF ENDS HERE --- #
+    # ----------------------------------------------------- #
+
+
+    # --------------------------------------- #
+    # --- VARIABLE DEFINITIONS BEGIN HERE --- #
+    # --------------------------------------- #
+    
     def reset_game(self):
         # Reset all game variables to their initial state when game starts/restarts
         self.continuequestion = "keep going"
@@ -79,7 +138,7 @@ class DungeonGame:
                 "inventory":{1:"medium attack potion", 2:"", 3:""}
             }
         }
-        # Item definitions
+        # Items
         self.items = {
             "atk":{
                 "small attack potion":0.50,
@@ -114,7 +173,9 @@ class DungeonGame:
             5:{"text":"\n----------------------------------------\nYippee! (positive event)\nA small sack lays at your feet. You open it and it contains a sword. Take it? (y/n)", "effect":"dmg", "change":1}
         }
     def negativeevntlist(self):
-        # List of negative event text
+        # List of negative event text, and the base effect it has on the player WHICH is modified by the score
+        # The change is multiplied by the score, so it gets worse the further you go
+        # This means you might get crippled by event number 3 in particular if you're far in. Sorry!
         return {
             1:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou trip. Idiot.", "effect":"end", "change":-0.03}, 
             2:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou hear disembodied murmuring all around you, whispering discouraging words.", "effect":"atk", "change":-0.20},
@@ -125,60 +186,10 @@ class DungeonGame:
             7:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou pull a book from a shelf you find, and its contents detail forbidden knowledge.", "effect":"atk", "change":-0.30},
             8:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nA skeleton with no arms comes sprinting out a corner full speed, right into your swinging arm, and falls apart.", "effect":"atk", "change":-0.20}
         }
-        
-        # Some unfinished stuff
-        self.characterchoice = None
 
-        # vvvvvvvvvvv Various print functions for diff delays vvvvvvvvvvvv  
-    def printnosleep(self, *args, end='\n'):
-        # Print text to the game window without delay
-        self.text.config(state='normal')
-        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
-        self.text.see(tk.END)
-        self.text.config(state='disabled')
-
-    def printshortsleep(self, *args, end='\n'):
-        # Print text to the game window with a delay for effect
-        self.text.config(state='normal')
-        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
-        self.text.see(tk.END)
-        self.text.config(state='disabled')
-        self.root.update()  # Ensure the GUI updates before sleeping
-        time.sleep(0.2)
-
-    def print(self, *args, end='\n'):
-        # Print text to the game window with a delay for effect
-        self.text.config(state='normal')
-        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
-        self.text.see(tk.END)
-        self.text.config(state='disabled')
-        self.root.update()  # Ensure the GUI updates before sleeping
-        time.sleep(0.75)      
-
-    def printlongsleep(self, *args, end='\n'):
-        # Print text to the game window with a delay for effect
-        self.text.config(state='normal')
-        self.text.insert(tk.END, ' '.join(str(a) for a in args) + end)
-        self.text.see(tk.END)
-        self.text.config(state='disabled')
-        self.root.update()
-        time.sleep(2)
-
-    def input(self, prompt, callback):
-        # Prompt the user for input and set the callback for when they submit (button stuff)
-        self.print(prompt, end='')
-        self.input_callback = callback
-        self.entry.delete(0, tk.END)
-        self.entry.focus_set()
-
-    def on_submit(self):
-        # Handles submit button and stuff even more
-        if self.input_callback:
-            value = self.entry.get()
-            self.entry.delete(0, tk.END)
-            cb = self.input_callback
-            self.input_callback = None
-            cb(value)
+    # --------------------------------------- #
+    # --- GAME LOGIC FUNCTIONS BEGIN HERE --- #
+    # --------------------------------------- #
 
     def start_game(self):
         # Display the introduction and start the game (yes it looks ugly if i don't do it like this it doesn't print right)
@@ -408,8 +419,6 @@ Good luck!\n""")
         self.text.config(state='disabled')
         self.start_game()
 
-    # --- GAME LOGIC FUNCTIONS ---
-
     def evnt2roll(self, callback):
         # Handle random events (positive or negative)
         event2 = random.randint(1,50)
@@ -461,6 +470,8 @@ Good luck!\n""")
         elif choose == "n":
             self.print("\nYou didn't take the item.\n")
         self.root.after(100, callback)
+
+    # ----- BATTLE STUFF -----
 
     def enemyroll(self, callback):
         # Generate an enemy encounter based on hiddenscore
@@ -567,7 +578,7 @@ Good luck!\n""")
             self.enemy_attack(enemyhp, enemyatk, enemyend, enemywep, callback)
 
     def use_item(self, slot, enemyhp, enemyatk, enemyend, enemywep, callback):
-        # Handle using an item from the inventory
+        # Use the item chosen
         try:
             itemchoice = int(slot)
         except:
@@ -576,6 +587,7 @@ Good luck!\n""")
         if self.inventory[itemchoice] == "":
             self.print("NOTHING buffed. Empty slot chosen.")
         else:
+            # Use a weird loop to check which item was chosen (THIS TOOK SO LONG)
             catcount = 0
             while catcount <= 2:
                 if catcount == 0:
@@ -610,7 +622,7 @@ Good luck!\n""")
         self.input(">Fight or >Run? >", lambda c: self.enemy_battle_choice(c, enemyhp, enemyatk, enemyend, enemywep, callback))
 
     def enemy_attack(self, enemyhp, enemyatk, enemyend, enemywep, callback):
-        # Handle the enemy's attack phase
+        # Now it's the enemy's turn to attack!
         enemycurrentattackdmg = enemywep*enemyatk
         combinedend = self.end+self.currentshield["end"]
         if combinedend > 0.99:
@@ -643,7 +655,7 @@ Good luck!\n""")
                 self.print(">YOU'RE HIT WITH " + str(finalenemyatk) + " POWER!<\nyour hp: " + str(self.hp) + "\n-------------\n")
             self.enemy_battle(enemyhp, enemyatk, enemyend, enemywep, callback)
 
-# Start the game if this file is run directly
+# Start the game through this file
 if __name__ == "__main__":
     root = tk.Tk()
     game = DungeonGame(root)
