@@ -97,6 +97,35 @@ class DungeonGame:
                 "large hp potion":0.9
             }  
         }
+        
+        # vvvv Makes random items for good events vvvv
+    def statrollsword(self):
+        return min(random.randint(40,300), random.randint(1,300), random.randint(1,300))
+    def statrollshield(self):
+        return min(random.randint(1000,7000)/100, random.randint(1000,7000)/100, random.randint(1000,7000)/100)
+    
+    def positiveevntlist(self):
+        # List of positive event text
+        return {
+            1:{"text":"\n----------------------------------------\nYippee! (positive event)\nA little goblin holding a tattered bag over it's shoulder skitters past, \nand a sword falls out of the bag. Pick it up? (y/n)", "effect":"dmg", "change":1},
+            2:{"text":"\n----------------------------------------\nYippee! (positive event)\nAs you continue, someone carrying a heavy load passes by, \nand asks you to please take something. Help them out and take a shield? (y/n)", "effect":"end", "change":0.01}, 
+            3:{"text":"\n----------------------------------------\nYippee! (positive event)\nEntering a shrine, you happen across a statue sculpted after... \nyou? It is holding a sword. Take it? (y/n)", "effect":"dmg", "change":1}, 
+            4:{"text":"\n----------------------------------------\nYippee! (positive event)\nYou happen across a pedestal holding a shield. Take it? (y/n)", "effect":"end", "change":0.01},
+            5:{"text":"\n----------------------------------------\nYippee! (positive event)\nA small sack lays at your feet. You open it and it contains a sword. Take it? (y/n)", "effect":"dmg", "change":1}
+        }
+    def negativeevntlist(self):
+        # List of negative event text
+        return {
+            1:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou trip. Idiot.", "effect":"end", "change":-0.03}, 
+            2:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou hear disembodied murmuring all around you, whispering discouraging words.", "effect":"atk", "change":-0.20},
+            3:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou spot a tall, silhouetted, skinny creature. It stares, so you stare back. \nIt disappears for the blink of an eye, reappears, then sprints away. \nYour arm is now bent backwards.", "effect":"atk", "change":-0.60}, 
+            4:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nA stinging headache hits you, and the pain makes it hard to think!", "effect":"end", "change":-0.15},
+            5:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nCramp!! That hurts....", "effect":"end", "change":-0.08},
+            6:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nThe ceiling trembles, and a rock falls flat on the top of your head.", "effect":"end", "change":-0.08},
+            7:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou pull a book from a shelf you find, and its contents detail forbidden knowledge.", "effect":"atk", "change":-0.30},
+            8:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nA skeleton with no arms comes sprinting out a corner full speed, right into your swinging arm, and falls apart.", "effect":"atk", "change":-0.20}
+        }
+        
         # Some unfinished stuff
         self.characterchoice = None
 
@@ -313,7 +342,7 @@ Good luck!\n""")
             if self.healcounter%3 == 0:
                 self.print("HP RESTORED TO MAX!")
                 self.hp = self.maxhp
-                self.print("Pick a stat to majorly improve! You only get THREE of these!\n1: atk +0.5 \n2: end +0.15\n3: hp +50")
+                self.print("Pick a stat to majorly improve! You will only get this chance THREE times!\n1: atk +0.5 \n2: end +0.15\n3: hp +50")
                 self.input(">", self.statchoice_input)
                 return
             # Chance to find a random item after battle
@@ -335,7 +364,7 @@ Good luck!\n""")
             self.main_game_loop()
 
     def statchoice_input(self, value):
-        # Handle stat choice after healing
+        # Improve chosen stat every 3 battles
         try:
             statchoice = int(value)
         except:
@@ -357,7 +386,7 @@ Good luck!\n""")
         self.main_game_loop()
 
     def try_again(self, value):
-        # Handle the player's choice to try again after losing
+        # Try again... or not?
         while value != "y" and value != "n":
             self.input("do you want to TRY AGAIN?? (y/n) >", self.try_again)
             return
@@ -412,7 +441,7 @@ Good luck!\n""")
             self.root.after(100, callback)
 
     def evnt2roll_choice(self, choose, eventchosen, callback):
-        # Handle the player's choice in a positive event
+        # Takes or denies item from a positive event
         while choose != "y" and choose != "n":
             self.print("\npick an OPTION!!!\n")
             if eventchosen["effect"] == "dmg":
@@ -433,36 +462,8 @@ Good luck!\n""")
             self.print("\nYou didn't take the item.\n")
         self.root.after(100, callback)
 
-    def statrollsword(self):
-        # Generate a random sword stat
-        return min(random.randint(40,300), random.randint(1,300), random.randint(1,300))
-    def statrollshield(self):
-        # Generate a random shield stat
-        return min(random.randint(1000,7000)/100, random.randint(1000,7000)/100, random.randint(1000,7000)/100)
-    def positiveevntlist(self):
-        # List of positive events
-        return {
-            1:{"text":"\n----------------------------------------\nYippee! (positive event)\nA little goblin holding a tattered bag over it's shoulder skitters past, \nand a sword falls out of the bag. Pick it up? (y/n)", "effect":"dmg", "change":1},
-            2:{"text":"\n----------------------------------------\nYippee! (positive event)\nAs you continue, someone carrying a heavy load passes by, \nand asks you to please take something. Help them out and take a shield? (y/n)", "effect":"end", "change":0.01}, 
-            3:{"text":"\n----------------------------------------\nYippee! (positive event)\nEntering a shrine, you happen across a statue sculpted after... \nyou? It is holding a sword. Take it? (y/n)", "effect":"dmg", "change":1}, 
-            4:{"text":"\n----------------------------------------\nYippee! (positive event)\nYou happen across a pedestal holding a shield. Take it? (y/n)", "effect":"end", "change":0.01},
-            5:{"text":"\n----------------------------------------\nYippee! (positive event)\nA small sack lays at your feet. You open it and it contains a sword. Take it? (y/n)", "effect":"dmg", "change":1}
-        }
-    def negativeevntlist(self):
-        # List of negative events
-        return {
-            1:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou trip. Idiot.", "effect":"end", "change":-0.03}, 
-            2:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou hear disembodied murmuring all around you, whispering discouraging words.", "effect":"atk", "change":-0.20},
-            3:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou spot a tall, silhouetted, skinny creature. It stares, so you stare back. \nIt disappears for the blink of an eye, reappears, then sprints away. \nYour arm is now bent backwards.", "effect":"atk", "change":-0.60}, 
-            4:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nA stinging headache hits you, and the pain makes it hard to think!", "effect":"end", "change":-0.15},
-            5:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nCramp!! That hurts....", "effect":"end", "change":-0.08},
-            6:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nThe ceiling trembles, and a rock falls flat on the top of your head.", "effect":"end", "change":-0.08},
-            7:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nYou pull a book from a shelf you find, and its contents detail forbidden knowledge.", "effect":"atk", "change":-0.30},
-            8:{"text":"\n----------------------------------------\nWomp womp.. (negative event)\nA skeleton with no arms comes sprinting out a corner full speed, right into your swinging arm, and falls apart.", "effect":"atk", "change":-0.20}
-        }
-
     def enemyroll(self, callback):
-        # Generate an enemy encounter based on progress
+        # Generate an enemy encounter based on hiddenscore
         if self.hiddenscore > 25:
             self.printlongsleep("\n==========================\nYou come across a " + random.choice(self.enemylist2) + "!\n==========================")
             enemyatk = round(float(random.randrange(151,201))/100 * (self.hiddenscore/40), 2)
@@ -483,7 +484,7 @@ Good luck!\n""")
         self.enemy_battle(enemyhp, enemyatk, enemyend, enemywep, callback)
 
     def enemy_battle(self, enemyhp, enemyatk, enemyend, enemywep, callback):
-        # Start a battle with an enemy
+        # Starts enemy encounter, and prints their stats
         self.print("-------------\nenemy hp: " + str(enemyhp))
         self.print("your hp: " + str(self.hp) + "/" + str(self.maxhp))
         self.input("\n>Fight, >Run, or use an >Item? You can also check your >Stats beforehand. >", lambda choice: self.enemy_battle_choice(choice, enemyhp, enemyatk, enemyend, enemywep, callback))
